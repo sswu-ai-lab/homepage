@@ -1,0 +1,2113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Lab</title>
+  <meta name="description" content="연구실 홈피" />
+  <style>
+    /*========================
+      DESIGN-ONLY POLISH (content unchanged)
+      - 상단 글로우 고정감 강화(스크롤 시 반복감 완화)
+      - 섹션 앵커 클릭 시 헤더 가림 방지(scroll-margin)
+      - 버튼/내비 호버 피드백 강화(시각적 변화만)
+      - 뉴스 영역 이미지 시각적 일관성(모서리/그림자)
+      - 멤버 그리드 간격·가독성 소폭 개선
+      ※ 텍스트/링크/순서/파일 경로 등 콘텐츠는 그대로 유지
+    ========================*/
+
+    :root {
+      --bg: #19272e;
+      --panel: #0f151b;
+      --panel-2: #111b24;
+      --text: #e6eef3;
+      --muted: #9fb2c1;
+      --primary: #7ac1ff;
+      --accent: #81ded8;
+      --line: #1f2a34;
+      --radius: 16px;
+      --shadow: 0 10px 28px rgba(0,0,0,.35);
+      --maxw: 80%;
+      --header-h: 72px;
+
+      /* motion knobs */
+      --ease-out: cubic-bezier(.22,.61,.36,1);
+      --ease-in-out: cubic-bezier(.4,0,.2,1);
+      --tilt-persp: 800px;
+      --tilt-rot: 6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Apple SD Gothic Neo, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 15% -10%, rgba(129,222,216,.12), transparent 40%),
+        radial-gradient(900px 600px at 90% 0%, rgba(122,193,255,.10), transparent 45%),
+        radial-gradient(800px 500px at 40% 30%, rgba(129,222,216,.12), transparent 50%),
+        radial-gradient(700px 600px at 65% 45%, rgba(129,222,216,.12), transparent 50%),
+        var(--bg);
+      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+      background-attachment: fixed;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; border-radius: 12px; }
+
+    .container { width: min(100% - 32px, var(--maxw)); margin-inline: auto; }
+
+    /* 버튼 */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+      padding: 1rem 1.2rem; border-radius: 999px; border: 0; cursor: pointer;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #0b0c10; font-weight: 800; letter-spacing:.2px;
+      box-shadow: 0 10px 28px rgba(129,222,216,.22), 0 3px 10px rgba(122,193,255,.18);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, background .18s ease;
+      will-change: transform, filter, background;
+    }
+    .btn:hover {  filter: saturate(114%); }
+    .btn:active { transform: translateY(0); filter: saturate(110%); }
+    .btn.ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
+    .btn.ghost:hover { background: rgba(255,255,255,.09); }
+
+    /* 카드 */
+    .card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .18s ease, border-color .18s ease;
+      will-change: transform, box-shadow;
+    }
+    .card:hover { box-shadow: 0 18px 40px rgba(2,6,23,.32); border-color: #2a3a4a; }
+    .card h3 { margin: 0 0 .6rem; font-size: 1.18rem; }
+
+    .card._tilt::after{
+      content:"";
+      position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+      background: radial-gradient(320px 210px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.10), transparent 60%);
+      opacity: 0; transition: opacity .25s var(--ease-out);
+    }
+    .card._tilt:hover::after{ opacity: 1; }
+
+    .icon {
+      width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; margin-bottom: .9rem;
+      background: linear-gradient(135deg, rgba(105,167,255,.18), rgba(95,234,212,.18));
+    }
+    .icon svg { width: 22px; height: 22px; stroke: var(--primary); }
+
+    /* 고정 헤더 */
+    header{
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
+      background: linear-gradient(180deg, rgba(15,22,30,.78), rgba(15,22,30,.42) 60%, rgba(15,22,30,0));
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: .8rem 0; }
+    .brand { display: flex; align-items: center; gap: .6rem; font-weight: 900; letter-spacing: .2px; }
+    .logo { width: 24px; height: 24px; }
+    .links { display: none; gap: 1.1rem; align-items: center; }
+    .links a { color: #c6d6df; font-weight: 600; opacity: .9; position:relative; padding:.25rem .4rem; border-radius:8px; }
+    .links a:hover{ background: rgba(255,255,255,.06); }
+    .links a.active { color:#eaf8ff; }
+    .links a.active::after{
+      content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px; background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius:2px; opacity:.9;
+    }
+    .menu-btn { background: transparent; border: 0; color: var(--text); font-size: 1.6rem; }
+    .mobile-menu { display: none; padding: .4rem 0 1rem; border-bottom: 1px solid var(--line); }
+    .mobile-menu a { display: block; padding: .7rem 0; color: var(--text); font-weight: 600; }
+
+    /* =======================
+       HERO
+    ========================*/
+    .hero {
+      min-height: calc(100svh - var(--header-h));
+      display: grid; place-items: center;
+      padding: 112px 0 64px;
+      position: relative;
+    }
+    .hero::before{
+      content:""; position:absolute; inset:0;
+      background:
+        radial-gradient(900px 600px at 10% 25%, rgba(129,222,216,.10), transparent 55%),
+        radial-gradient(600px 420px at 35% 18%, rgba(120,200,255,.08), transparent 60%);
+      pointer-events:none;
+    }
+    .hero .inner{
+      width: min(100% - 32px, var(--maxw));
+      display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center;
+    }
+    .hero .stack{
+      max-width: 1020px;
+      display: grid; gap: 22px; text-align: left;
+      filter: drop-shadow(0 12px 36px rgba(0,0,0,.28));
+    }
+    .eyebrow{
+      color: #b6f2ee; font-weight: 600;
+      font-size: 20px;
+      letter-spacing:.2px;
+      opacity:.95;
+    }
+    .hero h1{
+      margin:0;
+      font-weight: 900;
+      line-height: 1.34;
+      font-size: 400%;
+      letter-spacing:.2px;
+      background: linear-gradient(135deg, #b8e4ff 0%, #8fe9e0 40%, #ffffff 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 2px 22px rgba(130,228,222,.12);
+    }
+    .hero .sub{
+      color: var(--muted);
+      font-size: clamp(1rem, .8vw + .7rem, 1.25rem);
+      margin-top: 4px;
+    }
+    .hero .cta{ display:flex; gap: .8rem; flex-wrap: wrap; margin-top: 6px; }
+    .cta .btn{ font-size: clamp(.95rem, .3vw + .85rem, 1.05rem); padding:.95rem 1.25rem; }
+
+    /* 공통 섹션 */
+    .section { padding: 70px 0; scroll-margin-top: 16px; }
+    .section h2 { font-size: clamp(1.6rem, 2vw + .9rem, 2.2rem); margin: 0 0 1rem; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; gap: 20px; }
+    .grid.cols-3 { grid-template-columns: 1fr; }
+
+    /* 구성원 */
+    .people { grid-template-columns: 1fr; gap: 20px; }
+    .grid.people { justify-content: center; }
+    .person { display: grid; gap: 14px; align-items: center; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)); }
+
+    .card.person img {
+      width: 110px; height: 140px; object-fit: cover; object-position: 50% 40%;
+      border-radius: 12px; box-shadow: 0 10px 22px rgba(0,0,0,.25); background: #111822;
+    }
+    .card.person h4 { margin: 0; font-size: 20px; font-weight:700; }
+    .card.person .chip { display: inline-block; border-radius: 999px; color: #a9c2d3; font-size: .85rem; margin-top: 8px; padding: 6px 10px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+
+    .card.person[style*="width: 600px"] { width: min(100%, 600px) !important; }
+
+    .card.person > div { display:flex; gap:14px; align-items:center; }
+    @media (max-width: 720px) {
+      .card.person > div { flex-direction: column; align-items: center; text-align: center; margin-left: 0 !important; }
+      .card.person img { margin-right: 0 !important; }
+      .card.person div[style*="align-items:center"][style*="gap:14px"]{
+        flex-wrap: wrap; justify-content: center; gap: 10px !important; margin-top: 16px !important;
+      }
+    }
+    @media (min-width: 721px) { .card.person > div { flex-direction: row; } }
+
+    /* 출판 (기존 스타일) */
+    .pub { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border-radius: 12px; padding: 14px 16px; }
+    .href{ padding:0; border:none; border-radius:0; background:transparent; box-shadow:none; color:#8cd5ff; text-decoration:underline; font-weight:650; }
+    .href:hover{ text-decoration:none; opacity:.9; }
+
+    /* === Publications (year & locale) === */
+    .year-row{
+      display:flex; align-items:center; gap:12px;
+      margin: 22px 0 12px;
+    }
+    .year-row .year{
+      font-size: 1.4rem; font-weight: 900; color: #b9cbd7; opacity:.6; letter-spacing:.3px;
+      white-space: nowrap;
+    }
+    .year-row .rule{
+      height: 2px; flex: 1 1 auto;
+      background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border-radius: 2px;
+    }
+    .pub .meta{
+      display:flex; align-items:center; gap:.5rem;
+      color: var(--muted);
+      font-size: .95rem;
+      margin-bottom: 5px;
+    }
+    .pub-tag{
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.2rem .55rem; border-radius:999px; font-weight:700; letter-spacing:.1px;
+      border: 1px solid transparent;
+    }
+    .pub-tag.conf{
+      color:#bfeaff; background: rgba(122,193,255,.12); border-color: rgba(122,193,255,.25);
+    }
+    .pub-tag.jour{
+      color:#c6f6f1; background: rgba(129,222,216,.12); border-color: rgba(129,222,216,.25);
+    }
+
+    .pub-tag.best{
+      color:#f1edd1; background: rgba(230, 222, 154, 0.12); border-color: rgba(222, 216, 129, 0.199);
+    }
+
+    /* News 타임라인 */
+    .news { display: grid; gap: 14px; position: relative; }
+    .news:before { content:""; position:absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #6cc2ce, transparent 110%); }
+    .news-item { position:relative; display:grid; gap:6px; padding-left: 22px; }
+    .news-item:before { content:""; position:absolute; left:0; top:.35rem; width:14px; height:14px; border-radius:50%; background: linear-gradient(135deg, var(--primary), var(--accent)); }
+    .news-item time { color: var(--muted); font-size: .92rem; }
+    .news img { border-radius: 10px; box-shadow: var(--shadow); }
+
+    .news-item > div > div { display: flow-root; }
+
+    [data-animate]{ opacity: 0; transform: translateY(10px);
+      transition: opacity .6s var(--ease-out), transform .6s var(--ease-out), filter .6s var(--ease-out);
+      will-change: transform, opacity, filter; }
+    [data-animate].in{ opacity: 1; transform: none; }
+    [data-animate="up"]{ transform: translateY(16px); }
+    [data-animate="scale"]{ transform: scale(.98); }
+    [data-stagger] > * { will-change: opacity, transform; }
+
+    /* === Research — borderless cards + media === */
+    .research-grid{display:grid;gap:22px}
+    .r-card{
+          
+      position:relative;
+      display:grid;grid-template-columns:1fr;gap:18px;
+      padding:24px 22px;border-radius:var(--radius);
+      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+      box-shadow:var(--shadow);
+      transition:transform .18s var(--ease-out), box-shadow .18s var(--ease-out);
+    }
+    .r-card:hover{transform:translateY(-2px); box-shadow:0 18px 40px rgba(2,6,23,.32)}
+    .r-card .title{margin:0 0 .4rem;font-size:clamp(1.25rem,1.1vw + 1rem,1.6rem);font-weight:800}
+    .r-card .desc{color:var(--muted);font-size:clamp(.98rem,.7vw + .8rem,1.05rem);line-height:1.6}
+    .r-card .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:12px}
+    .r-card .chip{
+      padding:.45rem .7rem;border-radius:999px;
+      font-weight:650;font-size:.9rem;letter-spacing:.1px;
+      background:rgba(255,255,255,.06);
+    }
+    .r-card .media{
+      position:relative;
+      border-radius:14px;overflow:hidden;
+      background:#0d1318; aspect-ratio:16/9;
+      box-shadow:0 10px 26px rgba(0,0,0,.28) inset, 0 8px 18px rgba(0,0,0,.25);
+    }
+    .r-card .media > img{object-fit:contain;display:block}
+    .r-card .media > video{width:100%;height:100%;object-fit:contain;display:block}
+
+    .r-card .media .c-viewport{width:100%;height:100%;overflow:hidden}
+    .r-card .media .c-track{display:flex;width:100%;height:100%;transition:transform .45s var(--ease-in-out)}
+    .r-card .media .c-slide{flex:0 0 100%;height:100%}
+    .r-card .media .c-slide > img,
+    .r-card .media .c-slide > video{width:100%;height:100%;object-fit:cover;display:block}
+
+    .r-card .media .c-nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:38px;height:38px;border-radius:999px;display:grid;place-items:center;
+      background:rgba(31, 54, 51, 0.55); color:var(--text);
+      border:none; cursor:pointer; user-select:none;
+      backdrop-filter: blur(6px);
+    }
+    .r-card .media .c-nav.prev{left:10px}
+    .r-card .media .c-nav.next{right:10px}
+    .r-card .media .c-nav:hover{background:rgba(255,255,255,.08)}
+    .r-card .media .c-nav[disabled]{opacity:.35;pointer-events:none}
+
+    .r-card .media .c-pager{
+      position:absolute; right:12px; bottom:10px;
+      font-size:.85rem; color:#f2fefe;
+      background:rgba(35, 54, 51, 0.394); 
+      border-radius:999px; padding:.2rem .55rem; backdrop-filter: blur(4px);
+    }
+    .r-card .media.dragging .c-track{transition:none;cursor:grabbing}
+
+    @media (min-width: 920px){
+      .research-grid{gap:24px}
+      .r-card{grid-template-columns:1.15fr .85fr;align-items:center;padding:28px}
+      .r-card.swap{grid-template-columns:.85fr 1.15fr}
+      .r-card.swap .txt{order:2}
+      .r-card.swap .media{order:1}
+    }
+
+    @media (min-width: 768px) {
+      .links { display: flex; }
+      .menu-btn { display: none; }
+      .mobile-menu { display: none !important; }
+      .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+      .people { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .section { padding: 86px 0; }
+      .people { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .card { animation: cardFade .5s ease both; }
+      .person { animation: cardFade .6s ease both; }
+      @keyframes cardFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+
+    :root { --news-collapsed: 980px; }
+    .news-wrap{ position: relative; max-height: var(--news-collapsed); overflow: hidden; }
+    .news-wrap::after{
+      content:""; position:absolute; left:0; right:0; bottom:0; height: 180px;
+      background: linear-gradient(to bottom, rgba(25,39,46,0), rgba(25,39,46,.6) 45%, rgba(25,39,46,.92) 95%);
+      backdrop-filter: blur(4px) saturate(120%);
+      -webkit-backdrop-filter: blur(4px) saturate(120%);
+      pointer-events: none;
+    }
+    .news-wrap.is-open{ max-height: none; }
+    .news-wrap.is-open::after{ opacity: 0; }
+    .news-more{ position:absolute; left:50%; transform:translateX(-50%); bottom:18px; z-index:2; }
+    .news-wrap.is-open .news-more{ position:static; transform:none; margin:16px auto 0; display:inline-flex; }
+  
+    /* === About: 무한 마키(회전) === */
+    .about-marquee{
+      --gap: 18px;
+      position: relative;
+      margin-top: 22px;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+    }
+    .about-marquee::before,
+    .about-marquee::after{
+      content:"";
+      position:absolute; top:0; bottom:0; width:72px; pointer-events:none;
+      background: linear-gradient(to right, var(--bg), rgba(0,0,0,0));
+      z-index: 2;
+    }
+    .about-marquee::after{ right:0; transform: scaleX(-1); }
+    .about-marquee::before{ left:0; }
+
+    .about-track{
+      display:flex;
+      gap: var(--gap);
+      align-items: stretch;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      will-change: transform;
+      animation: about-marquee var(--about-duration, 40s) linear infinite;
+    }
+    .about-marquee:hover .about-track{ animation-play-state: paused; }
+
+    .about-card{
+      flex: 0 0 clamp(200px, 34vw, 330px);
+    }
+    @keyframes about-marquee{
+      from{ transform: translateX(0); }
+      to  { transform: translateX(calc(-50% - var(--gap)/2)); }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .about-track{ animation: none !important; flex-wrap: wrap; }
+      .about-marquee::before, .about-marquee::after{ display:none; }
+    }
+
+    /* === News images: mobile-friendly grid === */
+    @media (max-width: 768px) {
+      .news-item > div > div{
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        clear: both;
+      }
+      .news-item > div > div img{
+        width: auto !important;
+        height: auto !important;
+        float: none !important;
+        margin: 0 !important;
+        display: block !important;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+      }
+    }
+
+    /* === Member → Alumni 구분선 === */
+    .section-divider{
+      margin: 54px 0 26px;
+      padding-top: 26px;
+      display:flex; align-items:center; gap:12px;
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .section-divider .bar{
+      flex:1; height:2px; background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius:2px; opacity:.4;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container nav" role="navigation" aria-label="주요">
+      <div class="brand"><img class="logo" src="img/sswu.png" aria-hidden="true"><span id="labName">AI Lab</span></div>
+      <nav class="links" aria-label="주요 링크" id="topNav">
+        <a href="#about">About</a>
+        <a href="#research">Research</a>
+        <a href="#news">News</a>
+        <a href="#member">Member</a>
+        <a href="#publications">Publications</a>
+      </nav>
+      <button class="menu-btn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    </div>
+    <div class="container mobile-menu" id="mobileMenu" aria-label="모바일 메뉴">
+      <a href="#about">About</a>
+      <a href="#research">Research</a>      
+      <a href="#news">News</a>
+      <a href="#member">Member</a>
+      <a href="#publications">Publications</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="inner">
+        <div class="stack" data-animate="up">
+
+          <h1 data-animate="scale" style="margin-top: 5px;">Sensing the World with AI</h1>
+
+          <p class="sub" data-animate="up" style="font-size: 25px;">- Advancing Localization and Protecting Human through Multimodal Signals</p>
+
+          <div class="cta" data-animate="up">
+            <a class="btn" href="#news">What’s New</a>
+            <a class="btn ghost" href="#projects">Projects</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 소개 -->
+     
+    <section id="about" class="section">
+      <div class="container" style="align-content: center;">
+        <h2 style="font-size: 35px; text-align: center">About AI LAB</h2>
+        <div class="muted" style="text-align: center; font-size: 22px; width: 70%; margin:auto">
+          Our lab studies AI-based sensing and localization using signals from wearable and wireless devices.
+           We analyze various human-related signals to estimate location, movement, and physiological states,
+           developing intelligent systems that understand how people interact with their environment.
+        
+          </div>
+        
+
+
+        <div class="about-marquee" data-speed="200">
+          <div class="about-track">
+            <article class="card about-card">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/>
+                </svg>
+              </div>
+              <h3>Localization</h3>
+              <p class="muted">Researching AI-based methods to estimate human location and movement.</p>
+            </article>
+
+            <article class="card about-card">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                  <rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/>
+                </svg>
+              </div>
+              <h3>Machine &amp; Deep Learning</h3>
+              <p class="muted">Developing models that learn from multimodal signals using deep learning techniques.</p>
+            </article>
+
+            <article class="card about-card">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                  <path d="M12 12a4 4 0 110-8 4 4 0 010 8z"/><path d="M4 20a8 8 0 1116 0"/>
+                </svg>
+              </div>
+              <h3>Bio-signal Analysis</h3>
+              <p class="muted">Analyzing PPG and wearable sensor data to understand physiological states.</p>
+            </article>
+
+            <article class="card about-card">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
+                  <path d="M12 3v18M3 12h18" opacity=".25"/><path d="M8 8h8v8H8z"/>
+                </svg>
+              </div>
+              <h3>Indoor Positioning</h3>
+              <p class="muted">Building intelligent systems for accurate indoor tracking and spatial awareness.</p>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Research -->
+    <section id="research" class="section" data-animate="up">
+      <div class="container" data-animate="up">
+        <h2 style="font-size: 35px;">Research Areas</h2>
+
+        <div class="research-grid">
+
+          <!-- 1. PPG-based Risk Detection -->
+          <article class="r-card" data-animate="up">
+            <div class="txt">
+              <h3 class="title">PPG-based Threat Detection</h3>
+              <p class="desc">
+                Develop an automatic detection system for risk signals arising from
+                emotional responses and transient physiological anomalies using low-cost sensors
+              </p>
+              <div class="chips">
+                <span class="chip">PPG Signals</span>
+                <span class="chip">Wearable device</span>
+                <span class="chip">Threat detection</span>
+              </div>
+            </div>
+            <div class="media">
+              <video src="research/ppg1.MP4" style="object-fit: contain;" playsinline muted loop controls></video>
+              <img src="research/ppg2.jpg" alt="PPG visualization" style="object-fit: contain;">
+              <video src="research/ppg3.MP4" style="object-fit: contain;" playsinline muted loop controls></video>
+              <img src="research/ppg4.png" alt="PPG visualization" style="object-fit: contain;">
+              
+            </div>
+          </article>
+
+          <!-- 3. Wi-Fi CSI  -->
+          <article class="r-card swap" data-animate="up">
+            <div class="txt">
+              <h3 class="title">Wi-Fi CSI Based Localization and Pose Estimation</h3>
+              <p class="desc">
+                Detects presence and atypical movement without wearables by analyzing RF
+                channel variations, complement ing on-body sensing.
+              </p>
+              <div class="chips">
+                <span class="chip">RF Sensing</span>
+                <span class="chip">Contactless Detection</span>
+                <span class="chip">Movement Analysis</span>
+              </div>
+            </div>
+            <div class="media">
+              <video src="research/csi1.MP4" style="object-fit: contain;" playsinline muted loop controls></video>
+              <img src="research/csi2.png" alt="csi" style="object-fit: contain;">            
+              <img src="research/csi3.jpg" alt="csi" style="object-fit: contain;">                        
+            </div>
+          </article>
+
+          <!-- 2. Geofencing-based Risk Detection -->
+          <article class="r-card" data-animate="up">
+            <div class="txt">
+              <h3 class="title">Geofencing-based Abnormal Path Detection</h3>
+              <p class="desc">
+                Using GPS data, we model the daily movement patterns of protected individuals and detect abnormal paths through GPR-based prediction and comparison.
+              </p>
+              <div class="chips">
+                <span class="chip">GPS</span>
+                <span class="chip">GPR(Gaussian Process regression)</span>
+                <span class="chip">Localization</span>
+              </div>
+            </div>
+            <div class="media">
+              <img src="research/geo.png" alt="csi" style="object-fit: contain;">            
+              <img src="research/geo1.png" alt="csi" style="object-fit: contain;">
+              <img src="research/geo2.png" alt="csi" style="object-fit: contain;">
+              <img src="research/geo3.png" alt="csi" style="object-fit: contain;">
+              <img src="research/geo4.png" alt="csi" style="object-fit: contain;">
+              <img src="research/geo5.png" alt="csi" style="object-fit: contain;">
+              <img src="research/geo6.png" alt="csi" style="object-fit: contain;">
+              <img src="research/geo7.png" alt="csi" style="object-fit: contain;">
+              
+            </div>
+          </article>
+
+          <!-- 4. LLM-driven Situation Reasoning -->
+          <article class="r-card swap" data-animate="up">
+            <div class="txt">
+              <h3 class="title">LLM-driven Situation Reasoning</h3>
+              <p class="desc">
+                Consolidates multimodal detections and history into operator-ready
+                summaries and searchable reports for rapid response.
+              </p>
+              <div class="chips">
+                <span class="chip">LLM</span>
+                <span class="chip">SQL</span>
+                <span class="chip">Situation Analysis</span>
+                <span class="chip">Database</span>
+
+              </div>
+            </div>
+            <div class="media">
+              <video src="research/llm3.mp4" style="object-fit: contain;" playsinline muted loop controls></video>
+              <img src="research/llm1.png" alt="csi" style="object-fit: contain;">                          
+              <img src="research/llm2.png" alt="csi" style="object-fit: contain;">            
+              <img src="research/llm4.png" alt="csi" style="object-fit: contain;">                       
+            </div>
+          </article>
+
+          <!-- 5. IMU-based Risk -->
+          <article class="r-card" data-animate="up">
+            <div class="txt">
+              <h3 class="title">IMU-based Risk</h3>
+              <p class="desc">
+                Detects real-time physical risk by quantifying motion intensity and patterns
+                from wearable accelerometers, enabling severity estimation on device.
+              </p>
+              <div class="chips">
+                <span class="chip">Motion Sensing</span>
+                <span class="chip">Risk Detection</span>
+                <span class="chip">Wearable Devices</span>
+              </div>
+            </div>
+            <div class="media">
+              <img src="research/imu.png" alt="csi" style="object-fit: contain;">            
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- News -->
+    <section id="news" class="section">
+      <div class="container">
+        <h2 style="font-size: 35px;" data-animate="up">LAB News</h2>
+        <div class="news-wrap" data-collapsible>
+          <div class="news" data-stagger>
+            
+
+            <!-- 
+            정윤 언니 음대 입학
+            <div class="news-item" data-animate="up">
+              <time datetime="2025-10-01">2025-11-12</time>
+              <div style="margin-bottom: 10px;">정윤 언니 음대 입학</div>
+              <div>
+                <div>
+                  <img style="width: 400px; float:left; margin-right: 10px;" src="img/music.png" alt="">
+                </div>
+              </div>
+            </div> -->
+            <!-- IPNT2025 -->
+            <div class="news-item" data-animate="up">
+              <time datetime="2025-11-06">2025-11-06</time>
+              <div style="margin-bottom: 10px;">Presented at the IPNT Conference 2025</div>
+              <div>
+                <div>
+                  <img style="width: 370px; float:left; margin-right: 10px;" src="img/ipnt2025 (3).jpg" alt="">
+                  <img style="width: 200px; float:left; margin-right: 10px;" src="img/ipnt2025 (2).jpg" alt="">
+                  <img style="width: 370px; float:left; margin-right: 10px;" src="img/ipnt2025 (1).jpg" alt="">                  
+                </div>
+              </div>
+            </div>
+
+            <!-- 치안 박람회 -->
+            <div class="news-item" data-animate="up">
+              <time datetime="2025-10-01">2025-10-22 ~ 2025-10-26</time>
+              <div style="margin-bottom: 10px;">Exhibited at the Korea Police World Expo (2025)</div>
+              <div>
+                <div>
+                  <img style="width: 200px; float:left; margin-right: 10px;" src="img/police1.jpg" alt="">
+                  <img style="width: 200px; float:left; margin-right: 10px;" src="img/police4.jpg" alt="">                  
+                  <img style="width: 350px; float:left; margin-right: 10px;" src="img/police2.jpg" alt="">
+                  <img style="width: 350px; float:left; margin-right: 10px;" src="img/police5.jpg" alt="">
+                  
+
+                </div>
+              </div>
+            </div>
+
+            <!--하계학술박람회-->
+            <div class="news-item" data-animate="up">
+              <time datetime="2025-10-01">2025-06-20</time>
+              <div style="margin-bottom: 10px;">Presented at the KICS Summer Conference 2025</div>
+              <div>
+                <div>
+                  <img style="width: 190px; float:left; margin-right: 10px;" src="img/kics.jpg" alt="">
+                  <img style="width: 450px; float:left; margin-right: 10px" src="img/kics2.jpg" alt="">
+                </div>
+              </div>
+            </div>
+
+             <!--ipnt2024-->
+            <div class="news-item" data-animate="up">
+              <time datetime="2024-11-06">2024-11-06</time>
+              <div style="margin-bottom: 10px;">Presented at the IPNT Conference 2024</div>
+              <div>
+                <div>
+                  <img style="width: 350px; float:left; margin-right: 10px;" src="img/ipnt2024 (3).jpg" alt="">
+                  <img style="width: 200px; float:left; margin-right: 10px" src="img/ipnt2024 (1).jpg" alt="">
+                  <img style="width: 350px; float:left; margin-right: 10px" src="img/ipnt2024 (4).jpg" alt="">
+                  <img style="width: 350px; float:left; margin-right: 10px" src="img/ipnt2024 (5).jpg" alt="">
+
+                  
+                </div>
+              </div>
+            </div>
+
+
+            <!-- 상장 -->
+            <div class="news-item" data-animate="up">
+              <time datetime="2025-10-01">2024-05-24</time>
+              <div style="margin-bottom: 10px;">Received an award at the KICS Winter Conference 2024</div>
+              <div>
+                <div>
+                  <img style="width: 200px; float:left; margin-right: 10px;" src="img/한국정보처리학회 2024 학부생 논문경진대회상_황규원_240709_095616_1.png" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn ghost news-more" type="button" aria-expanded="false">View more</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Member -->
+    
+    <section id="member" class="section">
+      <div class="container" style="align-content: center;">
+        <h2 style="font-size: 35px; margin-bottom: -50px;" data-animate="up">Member</h2>
+
+         
+        <div class="section-divider" aria-hidden="true">
+          <div class="bar"></div>
+
+        </div>
+        
+        <div class="grid people" style="margin-top: 30px;" data-stagger>
+          <!-- UG 멤버 카드들 (생략 없이 유지) -->
+
+          <!-- 교수님 -->
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+            <img src="img/재현pf4.png" alt="PI 프로필" width="140" height="180" style="align-self: center; margin-right:10px;"/>
+              <div>
+                <h4>Jaehyun Yoo</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: -10px; font-weight:600">Assositate Professor</p>
+                <p class="muted" style="font-size: 15px; margin-bottom: 0; color:#6c8796">Indoor Localization · Machine Learning</p>
+                <div class="chip">jhyoo@sungshin.ac.kr</div>
+                <div style="margin-top: 5px;">
+                <a href="https://home.ipinlabs.com/ko/" target="_blank" rel="noopener"
+                  style="display:inline-flex; align-items:center; gap:8px; padding:0; border:0; background:transparent; box-shadow:none; color:#4d7d92; text-decoration:underline; font-weight:550; font-size:14px; margin-left:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" style="flex:0 0 16px; fill:#7fb1cc; margin-top:3px;">
+                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855q-.215.403-.395.872c.705.157 1.472.257 2.282.287zM4.249 3.539q.214-.577.481-1.078a7 7 0 0 1 .597-.933A7 7 0 0 0 3.051 3.05q.544.277 1.198.49zM3.509 7.5c.036-1.07.188-2.087.436-3.008a9 9 0 0 1-1.565-.667A6.96 6.96 0 0 0 1.018 7.5zm1.4-2.741a12.3 12.3 0 0 0-.4 2.741H7.5V5.091c-.91-.03-1.783-.145-2.591-.332M8.5 5.09V7.5h2.99a12.3 12.3 0 0 0-.399-2.741c-.808 .187-1.681 .301-2.591 .332zM4.51 8.5c.035 .987 .176 1.914 .399 2.741A13.6 13.6 0 0 1 7.5 10.91V8.5zm3.99 0v2.409c.91 .03 1.783 .145 2.591 .332 .223 -.827 .364 -1.754 .4 -2.741zm-3.282 3.696 q .18 .469 .395 .872 c .552 1.035 1.218 1.65 1.887 1.855 V11.91 c -.81 .03 -1.577 .13 -2.282 .287zm.11 2.276 a7 7 0 0 1 -.598 -.933 9 9 0 0 1 -.481 -1.079 8.4 8.4 0 0 0 -1.198 .49 7 7 0 0 0 2.276 1.522zm-1.383 -2.964 A13.4 13.4 0 0 1 3.508 8.5 h -2.49 a6.96 6.96 0 0 0 1.362 3.675 c .47 -.258 .995 -.482 1.565 -.667 m6.728 2.964 a7 7 0 0 0 2.275 -1.521 8.4 8.4 0 0 0 -1.197 -.49 9  9 0 0 1 -.481 1.078 7  7 0 0 1 -.597 .933 M8.5 11.909 v 3.014 c .67 -.204 1.335 -.82 1.887 -1.855 q .216 -.403 .395 -.872 A12.6 12.6 0 0 0 8.5 11.91 zm 3.555 -.401 c .57 .185 1.095 .409 1.565 .667 A6.96 6.96 0 0 0 14.982 8.5 h -2.49 a13.4 13.4 0 0 1 -.437 3.008 M14.982 7.5 a6.96 6.96 0 0 0 -1.362 -3.675 c -.47 .258 -.995 .482 -1.565 .667 .248 .92 .4 1.938 .437 3.008 z M11.27 2.461 q .266 .502 .482 1.078 a8.4 8.4 0 0 0 1.196 -.49 7 7 0 0 0 -2.275 -1.52 c .218 .283 .418 .597 .597 .932 m -.488 1.343 a8 8 0 0 0 -.395 -.872 C9.835 1.897 9.17 1.282 8.5 1.077 V4.09 c .81 -.03 1.577 -.13 2.282 -.287 z"/>
+                  </svg>
+                  <span>IPIN LABS</span>
+                </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/하정pf.jpg" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Hajeong Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
+                <div class="chip">happykhj67@gmail.com</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/승연pf.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Seungyeon Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">IMU-based Risk Detection</p>
+                <div class="chip">20231330@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/지민pf.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Jimin Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
+                <div class="chip">20231342@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/정윤pf2.png" alt="UG profile" width="95" height="125" />
+              <div>
+                <h4>Jung-yoon Moon</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
+                <div class="chip">sally0927.jm@gmail.com</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/해름pf.png" alt="UG profile" width="100" height="130" />
+              <div>
+                <h4>Haereum Park</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">LLM-driven Situation Reasoning</p>
+                <div class="chip">20231367@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/주연pf.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Juyeon Park</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">LLM-driven Situation Reasoning</p>
+                <div class="chip">joannapark0417@gmail.com</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/윤지pf3.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Yoonji Shin</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">Geofencing-based Localization</p>
+                <div class="chip">20231379@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/희랑pf2.png" alt="UG profile" width="95" height="130" />
+              <div>
+                <h4>Heerang An</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">Geofencing-based Localization</p>
+                <div class="chip">heerang0926@gmail.com</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/긍요pf2.png" alt="UG profile" width="95" height="125" />
+              <div>
+                <h4>Geung-yo Oh</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="display: flex; font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">WiFi-based Localization & Pose Estimation</p>
+                <div class="chip">20231383@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/지연pf.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Jiyeon Hong</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">WiFi-based Localization & Pose Estimation</p>
+                <div class="chip">20241283@gmail.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 구분선 + Alumni 섹션 ===== -->
+        <div class="section-divider" aria-hidden="true">
+          <span style="font-size: 30px;">Alumni</span>
+          <div class="bar"></div>
+        </div>
+
+        <div class="grid people" data-stagger>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Chan-young Joo</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">M.S.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Donggyu Lee</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">M.S.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Elaiza Salamat Nicole</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">M.S.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Hassan Barakat Mohammed</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">M.S.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Sohee Yoo</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+                <p class="muted" style="font-size:15px; margin-top:10px; margin-bottom:0;">AI developer in NH Bank</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Ha-eun Oh</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+                <p class="muted" style="font-size:15px; margin-top:10px; margin-bottom:0;">Master's Student at DGIST</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Jihyung Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+                <p class="muted" style="font-size:15px; margin-top:10px; margin-bottom:0;">Currently working in the AI industry</p>
+              </div>
+            </div>
+          </div>
+
+      
+
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Gyuwon Hwang</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+                <p class="muted" style="font-size:15px; margin-top:10px; margin-bottom:0;"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Yunhee Jo</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>Daeyoung Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left:7px;">
+              <img alt="Alumni profile" width="100" height="125"
+                   src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="150" viewBox="0 0 120 150"><rect width="120" height="150" rx="12" fill="%23111a22"/><circle cx="60" cy="47" r="23" fill="%232a3a4a"/><rect x="20" y="82" width="80" height="50" rx="10" fill="%232a3a4a"/></svg>' />
+              <div>
+                <h4>YeJun Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin:0; font-weight:600">B.S.</p>
+              </div>
+            </div>
+          </div>
+
+          
+
+        </div>
+
+        
+        <!-- ===== Alumni 섹션 끝 ===== -->
+
+      </div>
+    </section>
+
+    <!-- Publications -->
+    <section id="publications" class="section">
+      <div class="container">
+        <h2 style="font-size: 35px;" data-animate="up">Publications</h2>
+
+        <!-- 2025 -->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2025</span>
+          <div class="rule"></div>
+        </div>
+
+        <div class="card hover" data-animate="up">
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="Domestic venue">Conference</span>
+              <span>2025 · KICS Autumn Conference</span>
+            </div>
+            <div><strong>WiFi CSI를 이용한 잠재적 위치 추론</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Oh Geung Yo, Hong Ji Yeon, Yoo Jae Hyun</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="pub/2025/WiFi CSI를 이용한 잠재적 위치 추론.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="Domestic venue">Conference</span>
+              <span>2025 · KICS Autumn Conference</span>
+            </div>
+            <div><strong>LLM 기반 보호대상자 데이터 관리 시스템: SQL Agent 와 자동 보고 기능의 통합</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Park Ju Yeon, Park Hae Reum, Yoo Jae Hyun</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="pub/2025/LLM 기반 보호대상자 데이터 관리 시스템.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="Domestic venue">Conference</span>
+              <span>2025 · KICS Autumn Conference</span>
+            </div>
+            <div><strong>스마트워치 가속도계 기반 실시간 온디바이스 위험 수준 인식 기법</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Kim Seung Yeon, Yoo Jae Hyun</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="pub/2025/스마트워치 가속도계 기반 실시간 온디바이스 위험 수준 인식 기법.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="Domestic venue">Conference</span>
+              <span>2025 · KICS Autumn Conference</span>
+            </div>
+            <div><strong>스마트워치 PPG 신호 기반 무호흡 감지 알고리즘</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Kim Ha Jeong, Moon Jung Yoon, Kim Ji Min, Yoo Jae Hyun</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="pub/2025/스마트워치 PPG 신호 기반 무호흡 감지 알고리즘.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="Domestic venue">Conference</span>
+              <span>2025 · IPNT Conference</span>
+            </div>
+            <div><strong>가우시안 프로세스를 이용한 신변보호자 경로 학습</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Yoon-ji Shin, Hee-Rang An, Jae-Hyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="pub/2025/가우시안 프로세스를 이용한 신변보호자 경로 학습.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="Domestic venue">Conference</span>
+              <span>2025 · KICS Summer Conference</span>
+            </div>
+            <div><strong>생성형 AI를 활용한 스마트워치 PPG 신호 증강 및 유효성 검증 연구</strong></div>
+
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Hajeong Kim, Jimin Kim, Jungyoon Moon, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE12361157" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="Domestic venue">Journal</span>
+              <span>2025 · The Journal of Korean Institute of Communications and Information Science</span>
+            </div>
+            <div><strong>Detection of Psychological Risk for Protected Individuals by Using PPG Signals from Smartwatch</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Sohee Yoo, Gyuwon Hwang, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://journal.kics.or.kr/digital-library/full-text/view?doi=10.7840/kics.2025.50.4.572" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2025 · Control Engineering Practice</span>
+            </div>
+            <div><strong>Event-triggered control with reliable Gaussian process learning for remote UAV control</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Dohyun Jang, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.sciencedirect.com/science/article/pii/S0967066125003387" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="Domestic venue">Journal</span>
+              <span>2025 · Applied Sciences</span>
+            </div>
+            <div><strong>Real-time detection of at-risk movements using smartwatch IMU sensors</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Haeun Oh, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/2076-3417/15/4/1842" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+        </div>
+        
+        <!--2024-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2024</span>
+          <div class="rule"></div>
+        </div>
+        <div class="card hover" data-animate="up">
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2024 · Sensors Jounal</span>
+            </div>
+            <div><strong>Wi-fi fingerprint indoor localization by semi-supervised generative adversarial network</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/1424-8220/24/17/5698" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2024 · Sensors Journal(Basel, Switzerland)</span>
+            </div>
+            <div><strong>Emotion Recognition Using PPG Signals of Smartwatch on Purpose of Threat Detection</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Gyuwon Hwang, Sohee Yoo, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11723353/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+    
+        </div>
+        <!--2023-->
+
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2023</span>
+          <div class="rule"></div>
+        </div>
+
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2023 · IPIN-WiP</span>
+            </div>
+            <div><strong>Spatio-temporal Feature Extraction of Magnetic Patterns for Indoor Positioning.</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Eunji Ju, Jaeho Jang, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ceur-ws.org/Vol-3581/165_WiP.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2023 · Journal of Positioning, Navigation, and Timing</span>
+            </div>
+            <div><strong>Unlabeled Wi-Fi RSSI Indoor Positioning by Using IMU</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Chanyeong Ju, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.jpnt.org/wp-content/uploads/2024/05/JPNT-1201-04.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2023 · Journal of Positioning, Navigation, and Timing</span>
+            </div>
+            <div><strong>Indoor Path Recognition Based on Wi-Fi Fingerprints</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Donggyu Lee, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.jpnt.org/wp-content/uploads/2024/05/JPNT-1202-01.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2023 · 13th International Conference on Indoor Positioning and Indoor Navigation (IPIN)</span>
+            </div>
+            <div><strong>Machine learning for indoor localization without ground-truth locations</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Chanyeong Ju, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/10332468" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+    
+        </div>
+
+        <!--2022-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2022</span>
+          <div class="rule"></div>
+        </div>
+
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2022 · Sensors Journal</span>
+            </div>
+            <div><strong>Multiple fingerprinting localization by an artificial neural network</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/1424-8220/22/19/7505" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+        </div>
+
+        <!--2021-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2021</span>
+          <div class="rule"></div>
+        </div>
+
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2021 · Journal of Positioning, Navigation, and Timing</span>
+            </div>
+            <div><strong>A study of multi-target localization based on deep neural network for wi-fi indoor positioning</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.jpnt.org/wp-content/uploads/2024/03/JPNT-1001-07.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2021 · arXiv preprint arXiv:2112.14433</span>
+            </div>
+            <div><strong>Fully distributed informative planning for environmental learning with multi-robot systems</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Dohyun Jang, Jaehyun Yoo, Clark Youngdong Son, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://arxiv.org/abs/2112.14433" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          
+        </div>
+
+        <!--2020-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2020</span>
+          <div class="rule"></div>
+        </div>
+
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2020 · IEEE Control Systems Letters</span>
+            </div>
+            <div><strong>Hybrid reinforcement learning control for a micro quadrotor flight</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Dohyun Jang, H Jin Kim, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/9114884" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2020 · IEEE Robotics and Automation Letters</span>
+            </div>
+            <div><strong>Multi-robot active sensing and environmental model learning with distributed Gaussian process</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Dohyun Jang, Jaehyun Yoo, Clark Youngdong Son, Dabin Kim, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/9144385" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2020 · Pervasive and Mobile Computing</span>
+            </div>
+            <div><strong>Fingerprint variation detection by unlabeled data for indoor localization</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Sangjoon Park</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.sciencedirect.com/science/article/pii/S157411922030078X" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2020 · (Domestic) 제어로봇시스템학회 논문지</span>
+            </div>
+            <div><strong>준 지도식 GAN 을 이용한 와이파이 전자지문 기반 실내 위치 인식</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/Journal/articleDetail?nodeId=NODE10498171" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+        
+        </div>
+
+        <!--2019-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2019</span>
+          <div class="rule"></div>
+        </div>
+        <div class="card hover" data-animate="up">
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="domestic venue">Journal</span>
+              <span>2019 · International</span>
+            </div>
+            <div><strong>Efficient networked UAV control using event-triggered predictive control</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Dohyun Jang, Clark Youngdong Son, Jaehyun Yoo, H Jin Kim, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.sciencedirect.com/science/article/pii/S2405896319317021" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2019 · International</span>
+            </div>
+            <div><strong>Networked operation of a uav using gaussian process-based delay compensation and model predictive control</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Dohyun Jang, Jaehyun Yoo, Clark Youngdong Son, H Jin Kim, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/multirobot_icra19jang.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2019 · International</span>
+            </div>
+            <div><strong>Event-triggered model predictive control with a statistical learning</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/learning_tsmc20.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2019 · International</span>
+            </div>
+            <div><strong>Time-series Laplacian semi-supervised learning for indoor localization</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/1424-8220/19/18/3867" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2019 · International</span>
+            </div>
+            <div><strong>Indoor localization based on Wi-Fi received signal strength indicators: Feature extraction, mobile fingerprinting, and trajectory learning</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Jongho Park</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/2076-3417/9/18/3930" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2019 · 19th International Conference on Control, Automation and Systems (ICCAS)</span>
+            </div>
+            <div><strong>Feature representation of Wi-Fi signal strength for indoor location awareness</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/8971565" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2019 · IEEE Sensors Journal</span>
+            </div>
+            <div><strong>Change detection of RSSI fingerprint pattern for indoor positioning system</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/8891674" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2019 · Sensors Journal</span>
+            </div>
+            <div><strong>Indoor mapping guidance algorithm of rotary-wing UAV including dead-end situations</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jongho Park, Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/1424-8220/19/22/4854" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2019 · Institute of Control, Robotics and Systems</span>
+            </div>
+            <div><strong>가우시안 프로세스 모델 기반 강화 학습</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE08760756&buildDate=2025-11-11+19%3A29%3A46&nowDate=20251111_6&cdnUrl=https%3A%2F%2Fcdn.dbpia.co.kr%2Fstatic&minify=.min&buildTime=20251111192946&appVersion=1.0.0&language=ko_KR&hasTopBanner=true" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2019 · Institute of Control, Robotics and Systems</span>
+            </div>
+            <div><strong>하이브리드 강화학습을 이용한 무인기 자율주행</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE08735979&width=1920" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span class="pub-tag best" title="International venue">Best Paper</span>
+              <span>2019 · Institute of Control, Robotics and Systems</span>
+            </div>
+            <div><strong>빠른 학습 수렴을 위한 LQR 제어기와 강화학습 융합</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE09218540&width=1920" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+        </div>
+
+        <!--2018-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2018</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="domestic venue">Conference</span>
+              <span>2018 · IEEE International Conference on Robotics and Automation (ICRA)</span>
+            </div>
+            <div><strong>Design, Modeling and Control of T3-Multirotor: A Tilting Thruster Type Multirotor</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Seung Jae Lee, Jaehyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/8462888/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2018 · European Control Conference (ECC)</span>
+            </div>
+            <div><strong>Event-based observer and MPC with disturbance attenuation using ERM learning</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Ehsan Nekouei, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/event-triggered_ecc18yoo.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2018 · 18th International Conference on Control, Automation and Systems (ICCAS)</span>
+            </div>
+            <div><strong>Tracking control of a multirotor uav in a network environment with time-varying delay</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Dohyun Jang, Jaehyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/8571421/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2018 · Institute of Control, Robotics and Systems</span>
+            </div>
+            <div><strong>가우시안 프로세스 기반의 원거리 통신지연 보상기법을 이용한 무인기 경로계획</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE07571067&width=1920" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+        </div>
+
+        <!--2017-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2017</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="domestic venue">Journal</span>
+              <span>2017 · IFAC-PapersOnLine</span>
+            </div>
+            <div><strong>Learning communication delay patterns for remotely controlled UAV networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.sciencedirect.com/science/article/pii/S2405896317325843" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2017 · IEEE Transactions on Instrumentation and Measurement</span>
+            </div>
+            <div><strong>Indoor localization without a prior map by trajectory learning from crowdsourced measurements</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Karl Henrik Johansson, Hyoun Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/learning_ieeetim17yoo.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2017 · IEEE Conference on Control Technology and Applications (CCTA)</span>
+            </div>
+            <div><strong>Trajectory generation for networked UAVs using online learning for delay compensation</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Seungjae Lee, H Jin Kim, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/learning_ccta17yoo.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2017 · International Conference on Indoor Positioning and Indoor Navigation (IPIN)</span>
+            </div>
+            <div><strong>Semi-supervised learning for mobile robot localization using wireless signal strengths</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/learning_ipin17yoo.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2017 · 17th international conference on control, automation and systems (ICCAS)</span>
+            </div>
+            <div><strong>Path planning for remotely controlled UAVs using Gaussian process filter</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, H Jin Kim, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/8204486/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2017 · IEEE 56th Annual Conference on Decision and Control (CDC)</span>
+            </div>
+            <div><strong>Event-triggered model predictive control with machine learning for compensation of model uncertainties</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Adam Molin, Matin Jafarian, Hasan Esen, Dimos V Dimarogonas, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~dimos/pdfs/learning_cdc17yoo.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+        </div>
+        <!--2016-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2016</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="domestic venue">Conference</span>
+              <span>2016 · International Conference on Electronics, Information, and Communications (ICEIC)</span>
+            </div>
+            <div><strong>Utilization of unlabeled data for smartphone-robot localization</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/7562982/" target="_blank" rel="noopener noreferrer">view paper</a>
+            
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span class="pub-tag best" title="International venue">Best Paper</span>
+              <span class="pub-tag best" title="International venue">Silvar Award</span>
+              
+              <span>2016 · International Conference on Indoor Positioning and Indoor Navigation (IPIN)</span>
+            </div>
+            <div><strong>Mapless indoor localization by trajectory learning from a crowd</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, H Jin Kim, Karl H Johansson</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://people.kth.se/~kallej/papers/multirobot_ipin16yoo.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.youtube.com/watch?v=hArcAc3bJqs&t=337s" target="_blank" rel="noopener noreferrer">Presentation Video</a>
+          </div>
+        </div>
+        <!--2015-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2015</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">journal</span>
+              <span>2015 · USB On-Site Proceedings of the Sixth International Conference on Indoor Positioning and Indoor Navigation (IPIN)</span>
+            </div>
+            <div><strong>Machine learning for indoor localization: Deep learning and semi-supervised learning</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Seungwon Choi, Jaehyun Yoo, Hyoun Jin Kim</div>
+            
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="domestic venue">Journal</span>
+              <span>2015 · Journal of Institute of Control, Robotics and Systems</span>
+            </div>
+            <div><strong>스마트폰 로봇의 위치 인식을 위한 준 지도식 학습 기법</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE06338952&language=ko_KR&hasTopBanner=true&nowDate=20251028_2&minify=.min&cdnUrl=https%3A%2F%2Fcdn.dbpia.co.kr%2Fstatic" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2015 · IET Control Theory & Applications</span>
+            </div>
+            <div><strong>Distributed estimation using online semi‐supervised particle filter for mobile sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Woojin Kim, Hyoun Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/iet-cta.2014.0495" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2015 · Sensors Journal</span>
+            </div>
+            <div><strong>Target localization in wireless sensor networks using online semi-supervised support vector regression</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/1424-8220/15/6/12539" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2015 · 15th International Conference on Control, Automation and Systems (ICCAS)</span>
+            </div>
+            <div><strong>A mobile robot tracking using Kalman filter-based gaussian process in wireless sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jinhong Lim, Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/7364990/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2015 · Institute of Control, Robotics and Systems</span>
+            </div>
+            <div><strong>스마트폰 로봇의 위치 인식을 위한 준 지도식 학습 기법</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE06338952&width=1920" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+          
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span class="pub-tag best" title="International venue">Outstanding Best Paper</span>
+              
+              <span>2015 · The 30th Korean conference on Institute of Control, Robitics and Systems</span>
+            </div>
+            <div><strong>준 지도식 기계 학습을 이용한 실내 측위 루프 결합</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE06358037&width=1920" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+        </div>
+        <!--2014-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2014</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2014 · International Journal of Distributed Sensor Networks</span>
+            </div>
+            <div><strong>Semi-supervised location awareness in wireless sensor networks using laplacian support vector regression</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/iel7/6689802/6721750/06721821.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2014 · The 4th Annual IEEE International Conference on Cyber Technology in Automation, Control and Intelligent</span>
+            </div>
+            <div><strong>Optimal sensor placement for RSS-based localization using gaussian process</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/6917461/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2014 · IEEE International Conference on Systems, Man, and Cybernetics (SMC)</span>
+            </div>
+            <div><strong>Online estimation using semi-supervised least square svr</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/6974148/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2014 · Sensors Journal</span>
+            </div>
+            <div><strong>Target tracking and classification from labeled and unlabeled data in wireless sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://www.mdpi.com/1424-8220/14/12/23871" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+
+        </div>
+        <!--2013-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2013</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2013 · IEEE International Conference on Systems, Man, and Cybernetics</span>
+            </div>
+            <div><strong>Predictive target detection and sleep scheduling for wireless sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jae Hyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/iel7/6689802/6721750/06721821.pdf" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+        </div>
+        <!--2012-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2012</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag jour" title="International venue">Journal</span>
+              <span>2012 · IEEE transactions on cybernetics</span>
+            </div>
+            <div><strong>Multi-target tracking using distributed SVM training over wireless sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Woojin Kim, Jaehyun Yoo, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/6224817/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2012 · IEEE International Conference on Robotics and Automation</span>
+            </div>
+            <div><strong>Target localization using ensemble support vector regression in wireless sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Woojin Kim, Jaemann Park, Jaehyun Yoo, H Jin Kim, Chan Gook Park</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/abstract/document/6224817/" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+        </div>
+        <!--2011-->
+        <div class="year-row" aria-hidden="true">
+          <span class="year">2011</span>
+          <div class="rule"></div>
+
+        </div>
+        <div class="card hover" data-animate="up">
+          <div class="pub" style="margin-bottom: 14px;">
+            <div class="meta">
+              <span class="pub-tag conf" title="International venue">Conference</span>
+              <span>2011 · IEEE/RSJ International Conference on Intelligent Robots and Systems</span>
+            </div>
+            <div><strong>Event-driven Gaussian process for object localization in wireless sensor networks</strong></div>
+            <div class="muted" style="margin-top: 5px; margin-bottom: 10px;">Jaehyun Yoo, Woojin Kim, H Jin Kim</div>
+            <a class="href" style="text-align: right; margin-right: 15px; color:#b4edfc;"
+               href="https://ieeexplore.ieee.org/document/6094804" target="_blank" rel="noopener noreferrer">view paper</a>
+          </div>
+
+
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="padding: 28px 0; color: var(--muted); border-top: 1px solid var(--line);">
+      © <span id="year"></span> <span id="labNameFooter">AI Lab</span> — All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    // 현재 연도
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 모바일 메뉴 토글
+    const btn = document.querySelector('.menu-btn');
+    const menu = document.getElementById('mobileMenu');
+    const TAGLINE = document.getElementById('tagline')?.textContent || 'AI LAB';
+    (document.getElementById('tagline')||{}).textContent = TAGLINE;
+
+    btn.addEventListener('click', () => {
+      const opened = menu.style.display === 'block';
+      menu.style.display = opened ? 'none' : 'block';
+      btn.setAttribute('aria-expanded', String(!opened));
+    });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      menu.style.display = 'none';
+      btn.setAttribute('aria-expanded', 'false');
+    }));
+
+    // 랩실 이름
+    const LAB_NAME = 'AI Lab';
+    document.getElementById('labName').textContent = LAB_NAME;
+    document.getElementById('labNameFooter').textContent = LAB_NAME;
+
+    /* Scroll in-view animation */
+    (function(){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, {threshold: .18});
+
+      document.querySelectorAll('[data-stagger]').forEach(group=>{
+        Array.from(group.children).forEach((el, i)=>{ el.style.transitionDelay = (i*70) + 'ms'; });
+      });
+      document.querySelectorAll('[data-animate]').forEach(el=> io.observe(el));
+    })();
+
+    /* 카드 틸트 */
+    (()=>{
+      const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if(isTouch) return;
+
+      const rootStyles = getComputedStyle(document.documentElement);
+      const rotMax = parseFloat(rootStyles.getPropertyValue('--tilt-rot')) || 6;
+      const persp  = (rootStyles.getPropertyValue('--tilt-persp') || '900px').trim();
+
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card=>{
+        card.classList? card.classList.add('_tilt') : null;
+        let raf = null;
+        const onMove = (e)=>{
+          if(raf) return;
+          raf = requestAnimationFrame(()=>{
+            const r = card.getBoundingClientRect();
+            const relX = (e.clientX - r.left) / r.width - 0.5;
+            const relY = (e.clientY - r.top)  / r.height - 0.5;
+
+            card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+            card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
+
+            const rx = (-relY * rotMax).toFixed(2);
+            const ry = ( relX * rotMax).toFixed(2);
+            card.style.transform = `perspective(${persp}) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+            raf = null;
+          });
+        };
+        const onLeave = ()=>{
+          card.style.transform = '';
+          card.style.removeProperty('--mx');
+          card.style.removeProperty('--my');
+        };
+        card.addEventListener('mousemove', onMove);
+        card.addEventListener('mouseleave', onLeave);
+      });
+    })();
+
+    /* 내비게이션 현재 섹션 하이라이트 */
+    (function(){
+      const sections = ['about','research','member','publications','news']
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+      const links = Array.from(document.querySelectorAll('#topNav a'));
+
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            const id = entry.target.id;
+            links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+          }
+        });
+      }, {rootMargin:'-35% 0px -55% 0px', threshold: .01});
+
+      sections.forEach(sec => io.observe(sec));
+    })();
+
+    /* News collapse toggle — 안정화 */
+    (()=>{
+      const wrap = document.querySelector('.news-wrap');
+      if(!wrap) return;
+      const btn = wrap.querySelector('.news-more');
+
+      const check = ()=>{
+        const over = wrap.scrollHeight > wrap.clientHeight + 2;
+        btn.style.display = (over || wrap.classList.contains('is-open')) ? 'inline-flex' : 'none';
+      };
+
+      check();
+
+      let rAF = null;
+      window.addEventListener('resize', ()=>{
+        if (wrap.classList.contains('is-open')) return;
+        if (rAF) cancelAnimationFrame(rAF);
+        rAF = requestAnimationFrame(check);
+      });
+
+      wrap.querySelectorAll('img').forEach(img=>{
+        if (img.complete) return;
+        img.addEventListener('load', check, { once: true });
+        img.addEventListener('error', check, { once: true });
+      });
+
+      btn.addEventListener('click', ()=>{
+        const open = wrap.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Show less' : 'View more';
+        if(!open){
+          wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          requestAnimationFrame(check);
+        }
+      });
+    })();
+
+    /* Research 미디어 슬라이더 (화살표 전용) */
+    (function(){
+      const medias = Array.from(document.querySelectorAll('.r-card .media'));
+      medias.forEach(media => {
+        const rawKids = Array.from(media.children).filter(node => {
+          const tag = node.tagName?.toLowerCase();
+          if (tag !== 'video' && tag !== 'img') return false;
+          const src = node.getAttribute('src');
+          return !!(src && src.trim().length);
+        });
+
+        if (rawKids.length === 0) return;
+
+        const viewport = document.createElement('div');
+        viewport.className = 'c-viewport';
+        const track = document.createElement('div');
+        track.className = 'c-track';
+        viewport.appendChild(track);
+
+        rawKids.forEach(el => {
+          const slide = document.createElement('div');
+          slide.className = 'c-slide';
+          slide.appendChild(el);
+          track.appendChild(slide);
+        });
+
+        media.innerHTML = '';
+        media.appendChild(viewport);
+
+        const count = rawKids.length;
+        let index = 0;
+
+        let prevBtn, nextBtn, pager;
+        if (count > 1) {
+          prevBtn = document.createElement('button');
+          prevBtn.className = 'c-nav prev';
+          prevBtn.setAttribute('aria-label', 'Previous');
+          prevBtn.innerHTML = '&#8592;';
+
+          nextBtn = document.createElement('button');
+          nextBtn.className = 'c-nav next';
+          nextBtn.setAttribute('aria-label', 'Next');
+          nextBtn.innerHTML = '&#8594;';
+
+          pager = document.createElement('div');
+          pager.className = 'c-pager';
+
+          media.appendChild(prevBtn);
+          media.appendChild(nextBtn);
+          media.appendChild(pager);
+        }
+
+        function syncTrack() {
+          track.style.transform = `translateX(${-index * 100}%)`;
+          if (pager) pager.textContent = `${index + 1} / ${count}`;
+          if (prevBtn) prevBtn.disabled = index === 0;
+          if (nextBtn) nextBtn.disabled = index === count - 1;
+        }
+
+        function syncVideoPlayback() {
+          const slides = Array.from(track.children);
+          slides.forEach((slide, i) => {
+            const v = slide.querySelector('video');
+            if (!v) return;
+            if (i === index) {
+              v.play().catch(()=>{});
+            } else {
+              v.pause();
+            }
+          });
+        }
+
+        function go(to) {
+          index = Math.max(0, Math.min(count - 1, to));
+          syncTrack();
+          syncVideoPlayback();
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', () => go(index - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => go(index + 1));
+
+        syncTrack();
+        syncVideoPlayback();
+      });
+    })();
+
+    // About 마키 속도/복제
+    (function(){
+      const marquee = document.querySelector('#about .about-marquee');
+      const track   = document.querySelector('#about .about-track');
+      if(!marquee || !track) return;
+
+      track.innerHTML = track.innerHTML + track.innerHTML;
+
+      const speedPxPerSec = Number(marquee.getAttribute('data-speed') || 90);
+      requestAnimationFrame(() => {
+        const totalWidth = track.scrollWidth;
+        const duration = totalWidth / speedPxPerSec;
+        track.style.setProperty('--about-duration', `${duration}s`);
+      });
+    })();
+  </script>
+</body>
+</html>
+ 
