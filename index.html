@@ -1,21 +1,12 @@
 <!doctype html>
 <html lang="ko">
 <head>
+  <link rel='icon' type='img/png' href='img/sswu.png'>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Lab</title>
-  <meta name="description" content="연구실 홈피" />
+  <meta name="description" content="Sungshin W. Univ - AI LAB" />
   <style>
-    /*========================
-      DESIGN-ONLY POLISH (content unchanged)
-      - 상단 글로우 고정감 강화(스크롤 시 반복감 완화)
-      - 섹션 앵커 클릭 시 헤더 가림 방지(scroll-margin)
-      - 버튼/내비 호버 피드백 강화(시각적 변화만)
-      - 뉴스 영역 이미지 시각적 일관성(모서리/그림자)
-      - 멤버 그리드 간격·가독성 소폭 개선
-      ※ 텍스트/링크/순서/파일 경로 등 콘텐츠는 그대로 유지
-    ========================*/
-
     :root {
       --bg: #19272e;
       --panel: #0f151b;
@@ -436,6 +427,7 @@
       flex:1; height:2px; background: linear-gradient(90deg, var(--primary), var(--accent));
       border-radius:2px; opacity:.4;
     }
+
   </style>
 </head>
 
@@ -472,8 +464,8 @@
           <p class="sub" data-animate="up" style="font-size: 25px;">- Advancing Localization and Protecting Human through Multimodal Signals</p>
 
           <div class="cta" data-animate="up">
-            <a class="btn" href="#news">What’s New</a>
-            <a class="btn ghost" href="#projects">Projects</a>
+            <a class="btn" href="#news">What's New</a>
+            <a class="btn ghost" href="#research">Projects</a>
           </div>
         </div>
       </div>
@@ -483,7 +475,7 @@
      
     <section id="about" class="section">
       <div class="container" style="align-content: center;">
-        <h2 style="font-size: 35px; text-align: center">About AI LAB</h2>
+        <h2 style="font-size: 40px; text-align: center">About AI LAB</h2>
         <div class="muted" style="text-align: center; font-size: 22px; width: 70%; margin:auto">
           Our lab studies AI-based sensing and localization using signals from wearable and wireless devices.
            We analyze various human-related signals to estimate location, movement, and physiological states,
@@ -575,13 +567,12 @@
             <div class="txt">
               <h3 class="title">Wi-Fi CSI Based Localization and Pose Estimation</h3>
               <p class="desc">
-                Detects presence and atypical movement without wearables by analyzing RF
-                channel variations, complement ing on-body sensing.
+                Estimate indoor position and generate accurate pose using amplitude and phase in WiFi CSI signals for advanced localization.
               </p>
               <div class="chips">
-                <span class="chip">RF Sensing</span>
-                <span class="chip">Contactless Detection</span>
-                <span class="chip">Movement Analysis</span>
+                <span class="chip">WiFi Signal</span>`
+                <span class="chip">Multi-task Model</span>
+                <span class="chip">Localization</span>
               </div>
             </div>
             <div class="media">
