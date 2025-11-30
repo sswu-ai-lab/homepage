@@ -457,6 +457,136 @@
     }
     
     
+  
+    /* === Projects Modal === */
+    .projects-modal-backdrop{
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4, 10, 16, .75);
+      z-index: 200;
+      padding: 16px;
+    }
+    .projects-modal-backdrop.is-open{
+      display: flex;
+    }
+    .projects-modal{
+      width: min(640px, 100%);
+      max-height: min(80vh, 640px);
+      background: var(--panel-2);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .projects-modal-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .projects-modal-header h2{
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    .projects-modal-close{
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.6rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .projects-modal-close:hover{
+      color: var(--text);
+    }
+    .projects-modal-body{
+      overflow-y: auto;
+      padding-top: 2px;
+      padding-right: 4px;
+      display: grid;
+      gap: 14px;
+    }
+    .project-item{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,.04);
+    }
+    .project-title{
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .project-desc{
+      margin: 0;
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.5;
+    }
+    .project-meta{
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .project-chip{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: .25rem .7rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .project-chip--status{
+      border-color: rgba(122,193,255,.4);
+      background: rgba(122,193,255,.14);
+      color: #cfe7ff;
+    }
+    @media (max-width: 640px){
+      .projects-modal{
+        padding-inline: 16px;
+      }
+    }
+    .project-item--completed{
+      background: linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.003));
+      border-color: rgba(255,255,255,.02);
+    }
+    .project-item--completed .project-title{
+      color: #a6afb4;
+    }
+    .project-item--completed .project-desc{
+      color: #858d92;
+    }
+    .project-item--completed .project-chip{
+      background: rgba(255,255,255,.02);
+      border-color: rgba(255,255,255,.03);
+      color: #7e90a3;
+    }
+    .project-item--completed .project-chip.project-chip--status{
+      border-color: rgba(174, 186, 197, 0.4);
+      background: rgba(152, 164, 175, 0.16);
+      color: #b4bac0;
+    }
+
+    body.modal-open{
+      overflow: hidden;
+    }
+
+
   </style>
 </head>
 
@@ -490,15 +620,114 @@
 
           <h1 data-animate="scale" style="margin-top: 5px;">Sensing the World with AI</h1>
 
-          <p class="sub" data-animate="up" style="font-size: 25px;">- Advancing Localization and Protecting Human through Multimodal Signals</p>
+          <p class="sub" data-animate="up" style="font-size: 25px;">AI-based Situational Awareness from Multimodal Sensing Signals</p>
 
           <div class="cta" data-animate="up">
             <a class="btn" href="#news">What's New</a>
-            <a class="btn ghost" href="#research">Projects</a>
+            <a class="btn ghost" href="#" id="projectsBtn">Projects</a>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Projects Modal -->
+    <div class="projects-modal-backdrop" id="projectsModal" aria-hidden="true">
+      <div class="projects-modal" role="dialog" aria-modal="true" aria-labelledby="projectsModalTitle">
+        <div class="projects-modal-header">
+          <h2 id="projectsModalTitle">Projects</h2>
+          <button type="button" class="projects-modal-close" aria-label="Close projects list">&times;</button>
+        </div>
+        <div class="projects-modal-body">
+          <article class="project-item">
+            <h3 class="project-title">저전력 복합측위, 근접탐색 기술 기반 범죄피해 안전조치 대상자 위치추적 통합관제 플랫폼 개발 (Development of an Integrated Control Platform for Location Tracking of Crime Victims based on Low-Power Hybrid Positioning and Proximity Search Technologies)</h3>
+            <p class="project-desc">
+              성신여자대학교 연구팀 - 학습 기반 안전조치 대상자 긴급 상황 인지 및 자동 SOS 트리거링 기능을 포함한 통합 플랫폼 개발, KIPoT 과학치안진흥센터, 경찰청(National Police Agency) R&D 과제
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2023.04 - 2026.12</span>
+              <span class="project-chip project-chip--status">In Progress</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">멀티에이전트 시스템의 전이학습기법 연구(Transfer Learning for Multi-agent Systems)</h3>
+            <p class="project-desc">
+              위탁연구 공동연구원 (서울대학교 주관), 국방과학연구소 (Korean National Agency for Defense Development)
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.10 - 2021.09</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">인공지능 크라우드소싱을 이용한 무선신호 기반 실내위치인식 시스템(Crowdsourcing and Artificial Intelligence based Indoor Location Awareness System using Wireless Signal Strength)</h3>
+            <p class="project-desc">
+              기본연구, 과학기술정보통신부 (Ministry of Science and ICT) , 한국연구재단 (NRF)
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.06 - 2022.02</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">인공지능 크라우드소싱을 이용한 무선신호 기반 실내위치인식 시스템(Crowdsourcing and Artificial Intelligence based Indoor Location Awareness System using Wireless Signal Strength)</h3>
+            <p class="project-desc">
+              기본연구, 과학기술정보통신부 (Ministry of Science and ICT) , 한국연구재단 (NRF)
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.06 - 2022.02</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">미래도전기술 전장상황에서의 자율비행 기술경진대회</h3>
+            <p class="project-desc">
+              공동연구원, 한경대, 충남대, 충북대, 현대로템 Co., 모빌테크 Co..
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.08~</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">상지 근기능 측정 및 추정을 위한 생체 데이터 수집 및 기계학습</h3>
+            <p class="project-desc">
+              학술용역, Electronics and Telecommunications Research Institute (ETRI).
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.04 - 2019.10</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">Unlabeled 크라우드소싱 DB 구축과 무선신호 특성 변화 탐지 및 인식 연구</h3>
+            <p class="project-desc">
+              Electronics and Telecommunications Research Institute (ETRI), Korean Ministry of Science and ICT.
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.04~2019.10</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+
+          <article class="project-item project-item--completed">
+            <h3 class="project-title">인공지능 기반 소형 무인기 연구 (Artificial intelligence based small unmanned aerial vehicle)</h3>
+            <p class="project-desc">
+              자체학술연구비 (Hankyong National University)
+            </p>
+            <div class="project-meta">
+              <span class="project-chip">2019.03 - 2020.02</span>
+              <span class="project-chip project-chip--status">Completed</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
 
     <!-- 소개 -->
      
@@ -2272,7 +2501,50 @@
         track.style.setProperty('--about-duration', `${duration}s`);
       });
     })();
-  </script>
+  
+    /* Projects modal */
+    (function(){
+      const trigger = document.getElementById('projectsBtn');
+      const modal   = document.getElementById('projectsModal');
+      if(!trigger || !modal) return;
+
+      const closeBtn = modal.querySelector('.projects-modal-close');
+      const body = document.body;
+
+      const openModal = ()=>{
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        if(body){ body.classList.add('modal-open'); }
+      };
+
+      const closeModal = ()=>{
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        if(body){ body.classList.remove('modal-open'); }
+      };
+
+      trigger.addEventListener('click', function(e){
+        e.preventDefault();
+        openModal();
+      });
+
+      if(closeBtn){
+        closeBtn.addEventListener('click', closeModal);
+      }
+
+      modal.addEventListener('click', function(e){
+        if(e.target === modal){
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && modal.classList.contains('is-open')){
+          closeModal();
+        }
+      });
+    })();
+</script>
 </body>
 </html>
  
