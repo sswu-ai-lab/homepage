@@ -173,14 +173,14 @@
     /* 구성원 */
     .people { grid-template-columns: 1fr; gap: 20px; }
     .grid.people { justify-content: center; }
-    .person { display: grid; gap: 14px; align-items: center; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)); }
+    .person { display: grid; gap: 14px; align-items: center; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(216, 11, 11, 0)); }
 
     .card.person img {
       width: 110px; height: 140px; object-fit: cover; object-position: 50% 40%;
       border-radius: 12px; box-shadow: 0 10px 22px rgba(0,0,0,.25); background: #111822;
     }
     .card.person h4 { margin: 0; font-size: 20px; font-weight:700; }
-    .card.person .chip { display: inline-block; border-radius: 999px; color: #a9c2d3; font-size: .85rem; margin-top: 8px; padding: 6px 10px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+    .card.person .chip { display: inline-block; border-radius: 999px; color: #a9c2d3; font-size: .85rem; margin-top: 8px; padding: 6px 10px; background: rgba(248, 0, 0, 0.04); border: 1px solid var(--line); }
 
     .card.person[style*="width: 600px"] { width: min(100%, 600px) !important; }
 
@@ -1160,7 +1160,7 @@
 
         
 
-          <div class="card person" data-animate="up" >
+          <div class="card person" data-animate="up" style="background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(11, 117, 216, 0.116));">
             <div style="display:flex; gap:14px; margin-left: 7px;">
               <img src="img/재현pf.jpg" alt="UG profile" width="100" height="125" />
               <div>
@@ -1184,28 +1184,14 @@
               </div>
             </div>
           </div> -->
-
           <div class="card person" data-animate="up">
             <div style="display:flex; gap:14px; margin-left: 7px;">
-              <img src="img/승연pf.png" alt="UG profile" width="100" height="125" />
-              <div>
-                <h4>Seungyeon Kim</h4>
+              <img src="img/지연.png" alt="UG profile" width="100" height="125" />
+              <div> 
+                <h4>Jiyeon Hong</h4>
                 <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
-                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">· IMU-based Risk Detection</p>
-                <p class="muted" style="display: flex; font-size: 15px; margin-top:0; margin-bottom: 0; color:#6c8796">· RADAR-based Image Reconstruction</p>
-                <div class="chip">20231330@sungshin.ac.kr</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card person" data-animate="up">
-            <div style="display:flex; gap:14px; margin-left: 7px;">
-              <img src="img/지민pf.png" alt="UG profile" width="100" height="125" />
-              <div>
-                <h4>Jimin Kim</h4>
-                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
-                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
-                <div class="chip">20231342@sungshin.ac.kr</div>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">WiFi CSI-based Image Reconstruction</p>
+                <div class="chip">20241283@gmail.com</div>
               </div>
             </div>
           </div>
@@ -1225,6 +1211,44 @@
 
           <div class="card person" data-animate="up">
             <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/지민pf.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Jimin Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
+                <div class="chip">20231342@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+                  
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/승연pf.png" alt="UG profile" width="100" height="125" />
+              <div>
+                <h4>Seungyeon Kim</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">· IMU-based Risk Detection</p>
+                <p class="muted" style="display: flex; font-size: 15px; margin-top:0; margin-bottom: 0; color:#6c8796">· RADAR-based Image Reconstruction</p>
+                <div class="chip">20231330@sungshin.ac.kr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
+              <img src="img/정윤pf2.png" alt="UG profile" width="95" height="125" />
+              <div>
+                <h4>Jung-yoon Moon</h4>
+                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
+                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
+                <div class="chip">sally0927.jm@gmail.com</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card person" data-animate="up">
+            <div style="display:flex; gap:14px; margin-left: 7px;">
               <img src="img/수연pf.png" alt="UG profile" width="100" height="125" />
               <div>
                 <h4>Suyeon Nam</h4>
@@ -1238,12 +1262,13 @@
 
           <div class="card person" data-animate="up">
             <div style="display:flex; gap:14px; margin-left: 7px;">
-              <img src="img/정윤pf2.png" alt="UG profile" width="95" height="125" />
+              <img src="img/긍요pf2.png" alt="UG profile" width="95" height="125" />
               <div>
-                <h4>Jung-yoon Moon</h4>
+                <h4>Geung-yo Oh</h4>
                 <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
-                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">PPG-based Risk Detection</p>
-                <div class="chip">sally0927.jm@gmail.com</div>
+                <p class="muted" style="display: flex; font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">· WiFi CSI-based Localization & Pose Estimation</p>
+                <p class="muted" style="display: flex; font-size: 15px; margin-top:0; margin-bottom: 0; color:#6c8796">· Geophone-based HAR & Gait Analysis</p>
+                <div class="chip">20231383@sungshin.ac.kr</div>
               </div>
             </div>
           </div>
@@ -1284,30 +1309,7 @@
             </div>
           </div>
 
-          <div class="card person" data-animate="up">
-            <div style="display:flex; gap:14px; margin-left: 7px;">
-              <img src="img/긍요pf2.png" alt="UG profile" width="95" height="125" />
-              <div>
-                <h4>Geung-yo Oh</h4>
-                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
-                <p class="muted" style="display: flex; font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">· WiFi CSI-based Localization & Pose Estimation</p>
-                <p class="muted" style="display: flex; font-size: 15px; margin-top:0; margin-bottom: 0; color:#6c8796">· Geophone-based HAR & Gait Analysis</p>
-                <div class="chip">20231383@sungshin.ac.kr</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card person" data-animate="up">
-            <div style="display:flex; gap:14px; margin-left: 7px;">
-              <img src="img/지연.png" alt="UG profile" width="100" height="125" />
-              <div> 
-                <h4>Jiyeon Hong</h4>
-                <p style="font-size:17px; color:#64b1da; margin-top:0; margin-bottom: 0; font-weight:600">Undergraduate Student</p>
-                <p class="muted" style="font-size: 15px; margin-top:10px; margin-bottom: 0; color:#6c8796">WiFi CSI-based Image Reconstruction</p>
-                <div class="chip">20241283@gmail.com</div>
-              </div>
-            </div>
-          </div>
+          
         </div>
 
         <!-- ===== 구분선 + Alumni 섹션 ===== -->
